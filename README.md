@@ -1,73 +1,71 @@
-# ✧･ Unity Editor Discord Rich Presence ･✧
+# Unity Editor Discord Rich Presence
 
-✨ **flex what ur making in unity straight to ur discord status** ✨
+Display your Unity project and scene information in your Discord status.
 
-perfect 4 vrchat avatar creators who wanna show off their workflow~
+Designed for VRChat avatar creators.
 
-## ★ what's cool about it ★
+## Features
 
--  **real-time tracker** → ur scene & project name update automatically
--  **auto-magic detection** → finds discord when it's running, no setup needed
--  **session tracker** → flex how long u've been grinding
--  **play/edit modes** → different status when ur testing stuff
--  **literally zero config** → just install & go
+- Real-time scene and project name updates
+- Automatic Discord detection
+- Session time tracking
+- Play/Edit mode indicators
+- Zero configuration required
 
-## ⊹ installation ⊹
+## Installation
 
-### thru VRChat Creator Companion (VCC)
+### Via VRChat Creator Companion (VCC)
 
-1. add this repo to VCC → copy & paste this in ur browser:
+1. Add this repository to VCC:
    ```
    vcc://vpm/addRepo?url=https://akryst.github.io/Unity-Discord-RPC/index.json
    ```
 
-2. go 2 ur project in VCC & hit **Manage Project**
+2. Navigate to your project in VCC and select **Manage Project**
 
-3. find **Unity Editor Discord Rich Presence** and smash that **Add** button
+3. Locate **Unity Editor Discord Rich Presence** and click **Add**
 
-## how 2 use
+## Usage
 
-install it and ur done lol!! just make sure discord is running & it does everything automatically
+Install the package and ensure Discord is running. The integration works automatically.
 
-## what shows up on discord
+## Discord Status Display
 
-- **project name** → whatever ur unity project is called (updates live!)
-- **current scene** → the scene ur vibing in rn
-- **mode** → edit or play mode
-- **timestamp** → how long u've been in unity this session
+- **Project Name** - Your Unity project name
+- **Current Scene** - Active scene
+- **Mode** - Edit or Play mode
+- **Timestamp** - Session duration
 
-## what u need
+## Requirements
 
-- Unity 2019.4+ (basically any recent version)
-- Discord open on ur pc
-- Windows/Mac/Linux (we don't discriminate)
+- Unity 2019.4 or later
+- Discord application
+- Windows, macOS, or Linux
 
-## troubleshooting
+## Troubleshooting
 
-**status not showing??**
-- make sure discord is running b4 u open unity
-- check unity console 4 `[UERP]` messages
-- try restarting unity if u opened discord after
+**Status not appearing:**
+- Launch Discord before opening Unity
+- Check Unity Console for `[UERP]` messages
+- Restart Unity if Discord was opened afterwards
 
-**scene/project name stuck??**
-- updates happen every 2 seconds automatically
-- save ur scene w/ a proper name first
+**Information not updating:**
+- Updates occur every 2 seconds
+- Ensure scene is saved with a proper name
 
-## ♡ 4 vrchat creators ♡
+## For VRChat Creators
 
-this is literally perfect 4 showing off ur avatar workflow!! auto-updates when u:
-- switch between avatar scenes
-- rename ur project  
-- test ur avatar in play mode
+Automatically updates when you:
+- Switch between avatar scenes
+- Rename your project
+- Test avatars in Play mode
 
-show ur friends what ur cooking ✨
+## Credits
 
-## ☆ credits ☆
+Based on [MarshMello0's Editor Rich Presence](https://github.com/MarshMello0/Editor-Rich-Presence)
 
-based on [MarshMello0's Editor Rich Presence](https://github.com/MarshMello0/Editor-Rich-Presence)
+Uses Discord Game SDK
 
-uses Discord Game SDK
+## License
 
-##  license 
-
-MIT License → use it, remix it, do whatever u want w/ it!
+MIT License
