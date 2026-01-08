@@ -1,0 +1,40 @@
+name: Build Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Get version from package.json
+        id: version
+        run: |
+          VERSION=$(jq -r '.version' package.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Package version: $VERSION"
+          
+      - name: Create zip
+        run: |
+          zip -r "com.akryst.unity-discord-rpc-${{ steps.version.outputs.version }}.zip" \
+            Editor/ \
+            Runtime/ \
+            package.json \
+            README.md \
+            LICENSE.md \
+            CHANGELOG.md \
+            -x "*.meta"
+            
+      - name: Make Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          files: com.akryst.unity-discord-rpc-${{ steps.version.outputs.version }}.zip
+          generate_release_notes: true
