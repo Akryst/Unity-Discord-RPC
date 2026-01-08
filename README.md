@@ -21,7 +21,7 @@ Show what you're working on in Unity directly in your Discord status! Perfect fo
 
 2. In VCC, go to your project and click **Manage Project**
 
-3. Find **Unity Editor Discord Rich Presence** and click **Install**
+3. Find **Unity Editor Discord Rich Presence** and click **Add**
 
 ### Via Git URL (Unity Package Manager)
 
