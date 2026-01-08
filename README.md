@@ -16,7 +16,7 @@ Show what you're working on in Unity directly in your Discord status! Perfect fo
 
 1. Add this repository to VCC:
    ```
-   https://akryst.github.io/unity-discord-rpc/index.json
+   https://akryst.github.io/Unity-Discord-RPC/index.json
    ```
 
 2. In VCC, go to your project and click **Manage Project**
@@ -28,7 +28,7 @@ Show what you're working on in Unity directly in your Discord status! Perfect fo
 1. Open Unity
 2. Go to **Window → Package Manager**
 3. Click **+** → **Add package from git URL**
-4. Paste: `https://github.com/Akryst/unity-discord-rpc.git`
+4. Paste: `https://github.com/Akryst/Unity-Discord-RPC.git`
 
 ### Manual Installation
 
