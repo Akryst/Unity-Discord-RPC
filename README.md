@@ -30,11 +30,6 @@ Show what you're working on in Unity directly in your Discord status! Perfect fo
 3. Click **+** → **Add package from git URL**
 4. Paste: `https://github.com/Akryst/Unity-Discord-RPC.git`
 
-### Manual Installation
-
-1. Download the latest `.unitypackage` release
-2. Import into your Unity project
-
 ## Usage
 
 Once installed, it works automatically! Just make sure Discord is running.
