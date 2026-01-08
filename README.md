@@ -16,7 +16,10 @@ perfect 4 vrchat avatar creators who wanna show off their workflow~
 
 ### thru VRChat Creator Companion (VCC)
 
-1. add this repo to VCC → [click meeee](vcc://vpm/addRepo?url=https://akryst.github.io/Unity-Discord-RPC/index.json)
+1. add this repo to VCC → copy & paste this in ur browser:
+   ```
+   vcc://vpm/addRepo?url=https://akryst.github.io/Unity-Discord-RPC/index.json
+   ```
 
 2. go 2 ur project in VCC & hit **Manage Project**
 
