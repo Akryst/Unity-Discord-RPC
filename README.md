@@ -6,7 +6,7 @@ perfect 4 vrchat avatar creators who wanna show off their workflow~
 
 ## ★ what's cool about it ★
 
--  **real-time vibes** → ur scene & project name update automatically
+-  **real-time tracker** → ur scene & project name update automatically
 -  **auto-magic detection** → finds discord when it's running, no setup needed
 -  **session tracker** → flex how long u've been grinding
 -  **play/edit modes** → different status when ur testing stuff
@@ -25,24 +25,24 @@ perfect 4 vrchat avatar creators who wanna show off their workflow~
 
 3. find **Unity Editor Discord Rich Presence** and smash that **Add** button
 
-## ◇ how 2 use ◇
+## how 2 use
 
 install it and ur done lol!! just make sure discord is running & it does everything automatically
 
-## ◆ what shows up on discord ◆
+## what shows up on discord
 
 - **project name** → whatever ur unity project is called (updates live!)
 - **current scene** → the scene ur vibing in rn
 - **mode** → edit or play mode
 - **timestamp** → how long u've been in unity this session
 
-## ▼ what u need ▼
+## what u need
 
 - Unity 2019.4+ (basically any recent version)
 - Discord open on ur pc
 - Windows/Mac/Linux (we don't discriminate)
 
-## ▽ troubleshooting ▽
+## troubleshooting
 
 **status not showing??**
 - make sure discord is running b4 u open unity
