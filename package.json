@@ -1,0 +1,22 @@
+{
+  "name": "com.yourname.unity-discord-rpc",
+  "version": "1.0.0",
+  "displayName": "Unity Editor Discord Rich Presence",
+  "description": "Discord Rich Presence for Unity Editor - Shows what you're working on in Discord. Perfect for VRChat avatar creators.",
+  "unity": "2019.4",
+  "keywords": [
+    "discord",
+    "rich presence",
+    "rpc",
+    "vrchat",
+    "editor",
+    "utility"
+  ],
+  "author": {
+    "name": "Your Name",
+    "url": "https://github.com/yourusername"
+  },
+  "license": "MIT",
+  "dependencies": {},
+  "vpmDependencies": {}
+}
