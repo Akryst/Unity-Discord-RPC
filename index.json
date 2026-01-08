@@ -1,5 +1,6 @@
 {
   "name": "Akryst's VPM Repository",
+  "id": "com.akryst.vpm",
   "author": "Akryst",
   "url": "https://akryst.github.io/Unity-Discord-RPC/index.json",
   "packages": {
