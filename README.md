@@ -39,18 +39,6 @@ Show what you're working on in Unity directly in your Discord status! Perfect fo
 
 Once installed, it works automatically! Just make sure Discord is running.
 
-### Discord Application Setup (Optional)
-
-The package works with a default Discord application. To customize icons:
-
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Create a new application or use ID: `846826015904497714`
-3. Go to **Rich Presence → Art Assets**
-4. Upload images with these names:
-   - `unity` - Main Unity icon (recommended: 1024x1024)
-   - `play` - Play mode icon
-   - `edit` - Edit mode icon
-
 ## What it shows
 
 - **Project name** - Your Unity project name (updates in real-time!)
