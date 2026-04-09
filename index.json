@@ -6,6 +6,26 @@
   "packages": {
     "com.akryst.unity-discord-rpc": {
       "versions": {
+        "1.0.1": {
+          "name": "com.akryst.unity-discord-rpc",
+          "version": "1.0.1",
+          "displayName": "Unity Editor Discord Rich Presence",
+          "description": "Discord Rich Presence for Unity Editor - Shows what you're working on in Discord. Perfect for VRChat avatar creators.",
+          "unity": "2019.4",
+          "documentationUrl": "https://github.com/Akryst/Unity-Discord-RPC#readme",
+          "changelogUrl": "https://github.com/Akryst/Unity-Discord-RPC/blob/main/CHANGELOG.md",
+          "licensesUrl": "https://github.com/Akryst/Unity-Discord-RPC/blob/main/LICENSE.md",
+          "license": "MIT",
+          "keywords": ["discord", "rich presence", "rpc", "vrchat", "editor", "utility"],
+          "author": {
+            "name": "Akryst",
+            "url": "https://github.com/Akryst"
+          },
+          "dependencies": {},
+          "vpmDependencies": {},
+          "url": "https://github.com/Akryst/Unity-Discord-RPC/releases/download/v1.0.1/com.akryst.unity-discord-rpc-1.0.1.zip",
+          "repo": "https://github.com/Akryst/Unity-Discord-RPC"
+        },
         "1.0.0": {
           "name": "com.akryst.unity-discord-rpc",
           "version": "1.0.0",
