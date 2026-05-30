@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Akryst's VPM Repository</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0a;
+      --surface:   #111111;
+      --surface2:  #181818;
+      --border:    #2a2a2a;
+      --red:       #c0392b;
+      --red-h:     #e74c3c;
+      --red-dim:   rgba(192, 57, 43, 0.15);
+      --red-glow:  rgba(192, 57, 43, 0.08);
+      --text:      #e8e0d8;
+      --muted:     #666;
+      --muted2:    #444;
+      --radius:    2px;
+    }
+
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 3.5rem 1.5rem 5rem;
+    }
+
+    /* ── Top kamon (family crest) accent ── */
+    .kamon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .kamon-circle img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .header::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 2px;
+      background: var(--red);
+      margin: 1.5rem auto 0;
+    }
+
+    .header h1 {
+      font-family: "Noto Serif JP", serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .header-sub {
+      margin-top: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .header-sub a {
+      color: var(--red);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .header-sub a:hover { color: var(--red-h); }
+
+    /* ── Section label ── */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.85rem;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      background: var(--red);
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+
+    /* ── URL card ── */
+    .url-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--red);
+      padding: 1.1rem 1.3rem;
+      margin-bottom: 2rem;
+    }
+
+    .url-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .url-input {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.75rem;
+      color: #aaa;
+      font-size: 0.82rem;
+      font-family: "Consolas", "Fira Mono", monospace;
+      outline: none;
+      cursor: text;
+      user-select: all;
+      letter-spacing: 0.02em;
+      border-radius: var(--radius);
+      transition: border-color 0.15s;
+    }
+
+    .url-input:focus { border-color: var(--red); color: var(--text); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: background 0.15s, color 0.15s, transform 0.1s;
+      white-space: nowrap;
+      border-radius: var(--radius);
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-copy {
+      background: var(--surface2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-copy:hover { border-color: var(--red); color: var(--text); }
+
+    .btn-copy.copied {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    .btn-primary {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: var(--red-h); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover { border-color: var(--red); color: var(--text); }
+
+    .btn-sm { padding: 0.38rem 0.8rem; font-size: 0.78rem; }
+
+    /* ── Package card ── */
+    .package-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.5rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Red corner accent */
+    .package-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: linear-gradient(to right, var(--red), transparent 70%);
+    }
+
+    .pkg-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .pkg-info { flex: 1; min-width: 0; }
+
+    .pkg-name {
+      font-family: "Noto Serif JP", serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    .pkg-id {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: "Consolas", "Fira Mono", monospace;
+      margin-top: 4px;
+      letter-spacing: 0.03em;
+    }
+
+    .pkg-meta {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 0.6rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-radius: 1px;
+    }
+
+    .badge-version {
+      background: var(--red-dim);
+      color: var(--red-h);
+      border: 1px solid rgba(192,57,43,0.3);
+    }
+
+    .badge-unity {
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .badge-license {
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .pkg-desc {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.65;
+      border-left: 2px solid var(--border);
+      padding-left: 0.85rem;
+    }
+
+    .pkg-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted2);
+      letter-spacing: 0.05em;
+    }
+
+    footer a { color: var(--red); text-decoration: none; }
+    footer a:hover { color: var(--red-h); }
+
+    .footer-sep { margin: 0 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+
+    <!-- Kamon -->
+    <div class="kamon">
+        <img src="logo.png" alt="logo" />
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+      <h1>Akryst's VPM Repository</h1>
+      <p class="header-sub">Published by <a href="https://github.com/Akryst" target="_blank" rel="noopener">Akryst</a></p>
+    </header>
+
+    <!-- Repo URL -->
+    <p class="section-label">Repository URL</p>
+    <div class="url-card">
+      <div class="url-row">
+        <input
+          class="url-input"
+          id="repoUrl"
+          type="text"
+          readonly
+          value="https://akryst.github.io/Unity-Discord-RPC/index.json"
+        />
+        <button class="btn btn-copy" id="copyBtn" onclick="copyUrl()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copy
+        </button>
+        <a class="btn btn-primary" href="vcc://vpm/addRepo?url=https://akryst.github.io/Unity-Discord-RPC/index.json">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Add to VCC
+        </a>
+      </div>
+    </div>
+
+    <!-- Packages -->
+    <p class="section-label">Packages</p>
+
+    <div class="package-card">
+      <div class="pkg-header">
+        <div class="pkg-info">
+          <div class="pkg-name">Unity Editor Discord Rich Presence</div>
+          <div class="pkg-id">com.akryst.unity-discord-rpc</div>
+          <div class="pkg-meta">
+            <span class="badge badge-version">v1.0.0</span>
+            <span class="badge badge-unity">Unity 2019.4+</span>
+            <span class="badge badge-license">MIT</span>
+          </div>
+        </div>
+        <a class="btn btn-primary btn-sm" href="vcc://vpm/addRepo?url=https://akryst.github.io/Unity-Discord-RPC/index.json">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Add to VCC
+        </a>
+      </div>
+
+      <p class="pkg-desc">
+        Discord Rich Presence for the Unity Editor — shows what project and scene
+        you're working on directly in your Discord status. Supports play&nbsp;mode,
+        build detection, and VRChat SDK uploads.
+      </p>
+
+      <div class="pkg-actions">
+        <a class="btn btn-ghost btn-sm" href="https://github.com/Akryst/Unity-Discord-RPC#readme" target="_blank" rel="noopener">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+          </svg>
+          GitHub
+        </a>
+        <a class="btn btn-ghost btn-sm" href="https://github.com/Akryst/Unity-Discord-RPC/blob/main/CHANGELOG.md" target="_blank" rel="noopener">
+          Changelog
+        </a>
+        <a class="btn btn-ghost btn-sm" href="https://github.com/Akryst/Unity-Discord-RPC/blob/main/LICENSE.md" target="_blank" rel="noopener">
+          License
+        </a>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <footer>
+      <a href="https://github.com/Akryst/Unity-Discord-RPC" target="_blank" rel="noopener">GitHub</a>
+      <span class="footer-sep">·</span>
+      <a href="https://akryst.github.io/Unity-Discord-RPC/index.json" target="_blank" rel="noopener">index.json</a>
+    </footer>
+
+  </div>
+
+  <script>
+    function copyUrl() {
+      const url = document.getElementById('repoUrl').value;
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.classList.add('copied');
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`;
+        }, 2000);
+      }).catch(() => {
+        document.getElementById('repoUrl').select();
+        document.execCommand('copy');
+      });
+    }
+  </script>
+</body>
+</html>
