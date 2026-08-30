@@ -1,10 +1,11 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using System;
 using UnityEngine;
 using UnityEditor.SceneManagement;
 using UnityEditor;
 using System.Threading.Tasks;
-using Discord;
+using DiscordRPC;
+using DiscordRPC.Logging;
 using Debug = UnityEngine.Debug;
 using System.Diagnostics;
 using UnityEditor.Build;
@@ -16,19 +17,20 @@ using VRC.SDKBase.Editor.BuildPipeline;
 [InitializeOnLoad]
 public static class UERP
 {
-    private const long applicationId = 1458858322596855908L;
-    private static Discord.Discord discord;
+    private const string applicationId = "1458858322596855908";
+    private static DiscordRpcClient client;
     private static long startTimestamp;
     private static bool playMode = false;
     private static bool isInitialized = false;
+    private static bool isCleaningUp = false;
     private static float nextUpdateTime = 0f;
     private static string lastSceneName = "";
     private static string lastProjectName = "";
     private const float updateInterval = 2f;
     private static bool isBuilding = false;
     private static string buildStateText = "";
+    private static System.Threading.CancellationTokenSource startCts;
 
-    #region Initialization
     static UERP()
     {
         DelayStart();
@@ -40,7 +42,8 @@ public static class UERP
     {
         try
         {
-            await Task.Delay(delay);
+            startCts = new System.Threading.CancellationTokenSource();
+            await Task.Delay(delay, startCts.Token);
 
             if (!DiscordRunning())
             {
@@ -49,6 +52,10 @@ public static class UERP
             }
 
             Init();
+        }
+        catch (System.Threading.Tasks.TaskCanceledException)
+        {
+            return;
         }
         catch (Exception e)
         {
@@ -62,7 +69,10 @@ public static class UERP
 
         try
         {
-            discord = new Discord.Discord(applicationId, (long)CreateFlags.Default);
+            client = new DiscordRpcClient(applicationId);
+            client.Logger = new UnityLogger();
+            client.Initialize();
+
             long elapsed = (long)Math.Max(0, EditorAnalyticsSessionInfo.elapsedTime);
             startTimestamp = DateTimeOffset.Now.AddMilliseconds(-elapsed).ToUnixTimeSeconds();
 
@@ -83,14 +93,14 @@ public static class UERP
             Debug.LogError("[UERP] Initialization failed: " + e.Message);
         }
     }
-    #endregion
 
-    #region Update
     private static void Update()
     {
+        if (!isInitialized || client == null) return;
+
         try
         {
-            discord?.RunCallbacks();
+            client.Invoke();
 
             if (Time.realtimeSinceStartup >= nextUpdateTime)
             {
@@ -109,7 +119,7 @@ public static class UERP
         }
         catch (Exception e)
         {
-            Debug.LogError("[UERP] Callback error: " + e.Message);
+            Debug.LogError("[UERP] Update error: " + e.Message);
         }
     }
 
@@ -130,31 +140,25 @@ public static class UERP
 
     private static void UpdateActivity()
     {
-        if (discord == null) return;
+        if (client == null || !client.IsInitialized) return;
 
         try
         {
             string sceneName = EditorSceneManager.GetActiveScene().name;
             if (string.IsNullOrEmpty(sceneName)) sceneName = "Untitled Scene";
 
-            var activity = new Activity
+            client.SetPresence(new RichPresence
             {
                 Details = Application.productName,
                 State = isBuilding ? buildStateText : sceneName,
-                Timestamps = { Start = startTimestamp },
-                Assets =
+                Timestamps = new Timestamps { Start = DateTime.UtcNow.AddSeconds(-(DateTimeOffset.Now.ToUnixTimeSeconds() - startTimestamp)) },
+                Assets = new Assets
                 {
-                    LargeImage = "unity",
-                    LargeText = "Unity " + Application.unityVersion,
-                    SmallImage = playMode ? "play" : "edit",
-                    SmallText = isBuilding ? buildStateText : (playMode ? "Playing" : "Editing")
+                    LargeImageKey = "unity",
+                    LargeImageText = "Unity " + Application.unityVersion,
+                    SmallImageKey = playMode ? "play" : "edit",
+                    SmallImageText = isBuilding ? buildStateText : (playMode ? "Playing" : "Editing")
                 }
-            };
-
-            discord.GetActivityManager().UpdateActivity(activity, result =>
-            {
-                if (result != Result.Ok)
-                    Debug.LogWarning($"[UERP] Update failed: {result}");
             });
         }
         catch (Exception e)
@@ -162,32 +166,38 @@ public static class UERP
             Debug.LogError("[UERP] Update error: " + e.Message);
         }
     }
-    #endregion
 
-    #region Build State
     internal static void SetBuildState(bool building, string stateText = "")
     {
         isBuilding = building;
         buildStateText = stateText;
         UpdateActivity();
     }
-    #endregion
 
-    #region Cleanup
     private static void Cleanup()
     {
-        if (discord == null) return;
+        if (isCleaningUp || client == null) return;
+
+        lock (typeof(UERP))
+        {
+            if (isCleaningUp || client == null) return;
+            isCleaningUp = true;
+        }
 
         try
         {
+            startCts?.Cancel();
+            startCts?.Dispose();
+
             EditorApplication.update -= Update;
             EditorApplication.playModeStateChanged -= PlayModeChanged;
             EditorSceneManager.activeSceneChangedInEditMode -= OnSceneChanged;
             EditorApplication.quitting -= Cleanup;
             AssemblyReloadEvents.beforeAssemblyReload -= Cleanup;
 
-            discord.Dispose();
-            discord = null;
+            client?.ClearPresence();
+            client?.Dispose();
+            client = null;
             isInitialized = false;
 
             Debug.Log("[UERP] Cleaned up");
@@ -196,23 +206,58 @@ public static class UERP
         {
             Debug.LogError("[UERP] Cleanup error: " + e.Message);
         }
+        finally
+        {
+            isCleaningUp = false;
+        }
     }
-    #endregion
 
-    #region Discord Detection
     private static bool DiscordRunning()
     {
         string[] processNames = { "Discord", "DiscordPTB", "DiscordCanary", "discord" };
         foreach (string name in processNames)
         {
             Process[] procs = Process.GetProcessesByName(name);
-            bool found = procs.Length > 0;
-            foreach (Process p in procs) p.Dispose();
-            if (found) return true;
+            try
+            {
+                if (procs.Length > 0) return true;
+            }
+            finally
+            {
+                foreach (Process p in procs) p?.Dispose();
+            }
         }
         return false;
     }
-    #endregion
+
+    private class UnityLogger : DiscordRPC.Logging.ILogger
+    {
+        public DiscordRPC.Logging.LogLevel Level { get; set; } = DiscordRPC.Logging.LogLevel.Warning;
+
+        public void Trace(string message, params object[] args)
+        {
+            if (Level <= DiscordRPC.Logging.LogLevel.Trace)
+                Debug.Log($"[UERP] {string.Format(message, args)}");
+        }
+
+        public void Info(string message, params object[] args)
+        {
+            if (Level <= DiscordRPC.Logging.LogLevel.Info)
+                Debug.Log($"[UERP] {string.Format(message, args)}");
+        }
+
+        public void Warning(string message, params object[] args)
+        {
+            if (Level <= DiscordRPC.Logging.LogLevel.Warning)
+                Debug.LogWarning($"[UERP] {string.Format(message, args)}");
+        }
+
+        public void Error(string message, params object[] args)
+        {
+            if (Level <= DiscordRPC.Logging.LogLevel.Error)
+                Debug.LogError($"[UERP] {string.Format(message, args)}");
+        }
+    }
 }
 
 class UERPBuildProcessor : IPreprocessBuildWithReport, IPostprocessBuildWithReport
