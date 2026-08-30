@@ -26,16 +26,71 @@ public static class UERP
     private static float nextUpdateTime = 0f;
     private static string lastSceneName = "";
     private static string lastProjectName = "";
-    private const float updateInterval = 2f;
     private static bool isBuilding = false;
     private static string buildStateText = "";
     private static System.Threading.CancellationTokenSource startCts;
 
+    public static UERPConfig Config { get; private set; }
+
+    public static bool IsConnected => isInitialized && client != null && client.IsInitialized;
+
+    public class UERPConfig
+    {
+        public bool enabled = true;
+        public bool showProjectName = true;
+        public bool showSceneName = true;
+        public bool showSelection = true;
+        public string customProjectName = "";
+        public bool button1Enabled = true;
+        public string button1Label = "Add me on VCC";
+        public string button1URL = "https://vpm.akryst.moe";
+        public bool button2Enabled = false;
+        public string button2Label = "";
+        public string button2URL = "";
+        public float updateInterval = 2f;
+    }
+
+    public static void ApplySettings()
+    {
+        LoadConfig();
+        if (isInitialized)
+        {
+            if (!Config.enabled)
+            {
+                client?.ClearPresence();
+            }
+            else
+            {
+                UpdateActivity();
+            }
+        }
+    }
+
     static UERP()
     {
+        LoadConfig();
         DelayStart();
         EditorApplication.quitting += Cleanup;
         AssemblyReloadEvents.beforeAssemblyReload += Cleanup;
+    }
+
+    private static void LoadConfig()
+    {
+        Config = new UERPConfig
+        {
+            enabled = EditorPrefs.GetBool("UERP_Enabled", true),
+            showProjectName = EditorPrefs.GetBool("UERP_ShowProject", true),
+            showSceneName = EditorPrefs.GetBool("UERP_ShowScene", true),
+            showSelection = EditorPrefs.GetBool("UERP_ShowSelection", true),
+            customProjectName = EditorPrefs.GetString("UERP_CustomProject", ""),
+            button1Enabled = EditorPrefs.GetBool("UERP_Button1_Enabled", true),
+            button1Label = EditorPrefs.GetString("UERP_Button1_Label", "Add me on VCC"),
+            button1URL = EditorPrefs.GetString("UERP_Button1_URL", "https://vpm.akryst.moe"),
+            button2Enabled = EditorPrefs.GetBool("UERP_Button2_Enabled", false),
+            button2Label = EditorPrefs.GetString("UERP_Button2_Label", ""),
+            button2URL = EditorPrefs.GetString("UERP_Button2_URL", ""),
+            updateInterval = EditorPrefs.GetFloat("UERP_UpdateInterval", 2f)
+        };
     }
 
     private static async void DelayStart(int delay = 1000)
@@ -65,11 +120,11 @@ public static class UERP
 
     private static void Init()
     {
-        if (isInitialized) return;
+        if (isInitialized || !Config.enabled) return;
 
         try
         {
-            client = new DiscordRpcClient(applicationId);
+            client = new DiscordRpcClient(applicationId, autoEvents: false);
             client.Logger = new UnityLogger();
             client.Initialize();
 
@@ -79,6 +134,8 @@ public static class UERP
             EditorApplication.update += Update;
             EditorApplication.playModeStateChanged += PlayModeChanged;
             EditorSceneManager.activeSceneChangedInEditMode += OnSceneChanged;
+            Selection.selectionChanged += OnSelectionChanged;
+            Selection.selectionChanged += OnSelectionChanged;
 
             isInitialized = true;
             lastSceneName = EditorSceneManager.GetActiveScene().name;
@@ -102,9 +159,18 @@ public static class UERP
         {
             client.Invoke();
 
+            if (!Config.enabled)
+            {
+                if (client.CurrentPresence != null)
+                {
+                    client.ClearPresence();
+                }
+                return;
+            }
+
             if (Time.realtimeSinceStartup >= nextUpdateTime)
             {
-                nextUpdateTime = Time.realtimeSinceStartup + updateInterval;
+                nextUpdateTime = Time.realtimeSinceStartup + Config.updateInterval;
 
                 string currentScene = EditorSceneManager.GetActiveScene().name;
                 string currentProject = Application.productName;
@@ -128,6 +194,11 @@ public static class UERP
         UpdateActivity();
     }
 
+    private static void OnSelectionChanged()
+    {
+        UpdateActivity();
+    }
+
     private static void PlayModeChanged(PlayModeStateChange state)
     {
         bool isPlaying = EditorApplication.isPlaying;
@@ -147,19 +218,91 @@ public static class UERP
             string sceneName = EditorSceneManager.GetActiveScene().name;
             if (string.IsNullOrEmpty(sceneName)) sceneName = "Untitled Scene";
 
-            client.SetPresence(new RichPresence
+            string detailsText;
+            string stateText;
+            string smallImageText;
+
+            string projectName = Config.showProjectName
+                ? (string.IsNullOrEmpty(Config.customProjectName) ? Application.productName : Config.customProjectName)
+                : "Unity Editor";
+
+            if (isBuilding)
             {
-                Details = Application.productName,
-                State = isBuilding ? buildStateText : sceneName,
-                Timestamps = new Timestamps { Start = DateTime.UtcNow.AddSeconds(-(DateTimeOffset.Now.ToUnixTimeSeconds() - startTimestamp)) },
-                Assets = new Assets
+                detailsText = projectName;
+                stateText = buildStateText;
+                smallImageText = buildStateText;
+            }
+            else if (Selection.activeObject is Material mat && Config.showSelection)
+            {
+                detailsText = projectName;
+                stateText = $"Editing material: {mat.name}";
+                smallImageText = Config.showSceneName ? $"{sceneName}" : "Editing";
+            }
+            else if (Selection.activeObject is Mesh mesh && Config.showSelection)
+            {
+                detailsText = projectName;
+                stateText = $"Editing mesh: {mesh.name}";
+                smallImageText = Config.showSceneName ? $"{sceneName}" : "Editing";
+            }
+            else if (Selection.activeGameObject != null && Config.showSelection)
+            {
+                var go = Selection.activeGameObject;
+                var renderer = go.GetComponent<Renderer>();
+
+                detailsText = projectName;
+
+                if (renderer != null && renderer.sharedMaterials.Length > 0)
                 {
-                    LargeImageKey = "unity",
-                    LargeImageText = "Unity " + Application.unityVersion,
-                    SmallImageKey = playMode ? "play" : "edit",
-                    SmallImageText = isBuilding ? buildStateText : (playMode ? "Playing" : "Editing")
+                    stateText = $"Editing {go.name}";
                 }
-            });
+                else
+                {
+                    stateText = $"Editing {go.name}";
+                }
+
+                smallImageText = Config.showSceneName ? $"Scene: {sceneName}" : "Editing";
+            }
+            else
+            {
+                detailsText = projectName;
+                stateText = Config.showSceneName ? sceneName : "Editing";
+                smallImageText = playMode ? "Playing" : "Editing";
+            }
+
+            var buttons = new System.Collections.Generic.List<DiscordRPC.Button>();
+            if (Config.button1Enabled && !string.IsNullOrEmpty(Config.button1URL))
+                buttons.Add(new DiscordRPC.Button { Label = Config.button1Label, Url = Config.button1URL });
+            if (Config.button2Enabled && !string.IsNullOrEmpty(Config.button2URL))
+                buttons.Add(new DiscordRPC.Button { Label = Config.button2Label, Url = Config.button2URL });
+
+            var presence = new RichPresence();
+
+            if (Config.showProjectName && !string.IsNullOrEmpty(detailsText))
+            {
+                presence.Details = detailsText;
+            }
+
+            if (!string.IsNullOrEmpty(stateText))
+            {
+                presence.State = stateText;
+            }
+
+            presence.Assets = new Assets
+            {
+                LargeImageKey = "unity",
+                LargeImageText = "Unity " + Application.unityVersion,
+                SmallImageKey = playMode ? "play" : "edit",
+                SmallImageText = smallImageText
+            };
+
+            if (buttons.Count > 0)
+            {
+                presence.Buttons = buttons.ToArray();
+            }
+
+            presence.Timestamps = new Timestamps { Start = DateTime.UtcNow.AddSeconds(-(DateTimeOffset.Now.ToUnixTimeSeconds() - startTimestamp)) };
+
+            client.SetPresence(presence);
         }
         catch (Exception e)
         {
@@ -192,6 +335,7 @@ public static class UERP
             EditorApplication.update -= Update;
             EditorApplication.playModeStateChanged -= PlayModeChanged;
             EditorSceneManager.activeSceneChangedInEditMode -= OnSceneChanged;
+            Selection.selectionChanged -= OnSelectionChanged;
             EditorApplication.quitting -= Cleanup;
             AssemblyReloadEvents.beforeAssemblyReload -= Cleanup;
 

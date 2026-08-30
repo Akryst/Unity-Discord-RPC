@@ -138,7 +138,7 @@ namespace DiscordRPC.RPC
 			this.ShutdownOnly = true;
 
 			//Assign a default logger
-			Logger = new ConsoleLogger();
+			Logger = new NullLogger();
 
 			delay = new BackoffDelay(500, 60 * 1000);
 			_maxRtQueueSize = maxRtQueueSize;

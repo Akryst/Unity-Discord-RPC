@@ -3,7 +3,6 @@ using DiscordRPC.Exceptions;
 using DiscordRPC.IO;
 using DiscordRPC.Logging;
 using DiscordRPC.Message;
-using DiscordRPC.Registry;
 using DiscordRPC.RPC;
 using DiscordRPC.RPC.Commands;
 using System;
@@ -20,8 +19,7 @@ namespace DiscordRPC
 
 
         /// <summary>
-        /// Gets a value indicating if the client has registered a URI Scheme. If this is false, Join events will fail.
-        /// <para>To register a URI Scheme, call <see cref="RegisterUriScheme(string, string)"/>.</para>
+        /// Gets a value indicating if the client has registered a URI Scheme. Always false in this implementation.
         /// </summary>
         public bool HasRegisteredUriScheme { get; private set; }
 
@@ -722,21 +720,12 @@ namespace DiscordRPC
 
         /// <summary>
         /// Registers the application executable to a custom URI Scheme.
-        /// <para>This is required for the Join feature. Discord will run this custom URI Scheme to launch your application when a user presses either of the buttons.</para>
+        /// <para>Not implemented - Join/Spectate features removed.</para>
         /// </summary>
-        /// <param name="steamAppID">Optional Steam ID. If supplied, Discord will launch the game through steam instead of directly calling it.</param>
-        /// <param name="executable">The path to the executable. If null, the path to the current executable will be used instead.</param>
-        /// <returns></returns>
         public bool RegisterUriScheme(string steamAppID = null, string executable = null)
         {
-            var info = new SchemeInfo()
-            {
-                ApplicationID = ApplicationID,
-                SteamAppID = steamAppID,
-                ExecutablePath = executable ?? System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName
-            };
-
-            return HasRegisteredUriScheme = UriScheme.Register(info, _logger);
+            Logger?.Warning("RegisterUriScheme not implemented - Join/Spectate features removed");
+            return HasRegisteredUriScheme = false;
         }
 
         /// <summary>

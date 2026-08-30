@@ -2,7 +2,7 @@
   "name": "com.akryst.unity-discord-rpc",
   "version": "2.0.0",
   "displayName": "Unity Editor Discord Rich Presence",
-  "description": "Lightweight Discord Rich Presence for Unity Editor - Shows what you're working on in Discord. Perfect for VRChat avatar creators.",
+  "description": "Lightweight Discord Rich Presence for Unity Editor - Shows your current project, scene, and selected objects. Features full settings UI, clickable buttons, and real-time updates. Perfect for VRChat creators. Only 343KB, 100% managed C# code.",
   "unity": "2019.4",
   "keywords": [
     "discord",
@@ -14,9 +14,11 @@
   ],
   "author": {
     "name": "Akryst",
-    "url": "https://github.com/Akryst"
+    "url": "https://akryst.moe"
   },
   "license": "MIT",
   "dependencies": {},
-  "vpmDependencies": {}
+  "vpmDependencies": {},
+  "url": "https://github.com/Akryst/Unity-Discord-RPC",
+  "changelogUrl": "https://github.com/Akryst/Unity-Discord-RPC/blob/main/CHANGELOG.md"
 }
