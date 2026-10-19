@@ -8,6 +8,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using DiscordRPC.IO;
+using DiscordRPC.Logging;
+using DiscordRPC.RPC;
+using DiscordRPC.Helper;
 
 internal static class IpcSmokeTests
 {
@@ -161,11 +164,53 @@ internal static class IpcSmokeTests
 
     private static void Main()
     {
+        UnavailableDiscord();
         Locations();
         Console.WriteLine("IPC locations passed.");
         UnixTransport();
         Console.WriteLine("Unix transport passed.");
         if (OperatingSystem.IsWindows()) WindowsTransport();
-        Console.WriteLine("PASS: IPC locations, Unix sockets, fragmented/combined frames, writes, EOF, reconnect, oversized frames" + (OperatingSystem.IsWindows() ? ", Windows named pipes." : "."));
+        Console.WriteLine("PASS: unavailable Discord retries without repeated warnings/errors, IPC locations, Unix sockets, fragmented/combined frames, writes, EOF, reconnect, oversized frames" + (OperatingSystem.IsWindows() ? ", Windows named pipes." : "."));
+    }
+
+    private static void UnavailableDiscord()
+    {
+        var pipe = new UnavailablePipe();
+        var logger = new CountingLogger();
+        using (var connection = new RpcConnection("1", 1, -1, pipe))
+        {
+            connection.Logger = logger;
+            typeof(RpcConnection).GetField("delay", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(connection, new BackoffDelay(1, 1));
+            Check(connection.AttemptConnection(), "Retry worker did not start.");
+            WaitFor(() => Volatile.Read(ref pipe.Attempts) >= 3, "Unavailable Discord must retry.");
+        }
+        WaitFor(() => pipe.Disposed, "Retry worker did not stop.");
+        Check(logger.Warnings == 1 && logger.Errors == 0, "Unavailable Discord must produce one warning and no errors.");
+    }
+
+    private sealed class UnavailablePipe : INamedPipeClient
+    {
+        public int Attempts;
+        public volatile bool Disposed;
+        public ILogger Logger { get; set; }
+        public bool IsConnected => false;
+        public int ConnectedPipe => -1;
+        public bool Connect(int pipe) { Interlocked.Increment(ref Attempts); return false; }
+        public bool ReadFrame(out PipeFrame frame) { frame = default; return false; }
+        public bool WriteFrame(PipeFrame frame) => false;
+        public void Close() { }
+        public void Dispose() { Disposed = true; }
+    }
+
+    private sealed class CountingLogger : ILogger
+    {
+        public int Warnings;
+        public int Errors;
+        public LogLevel Level { get; set; } = LogLevel.Trace;
+        public void Trace(string message, params object[] args) { }
+        public void Info(string message, params object[] args) { }
+        public void Warning(string message, params object[] args) { Interlocked.Increment(ref Warnings); }
+        public void Error(string message, params object[] args) { Interlocked.Increment(ref Errors); }
     }
 }

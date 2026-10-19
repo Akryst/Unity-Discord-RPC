@@ -48,11 +48,14 @@ public static class UERP
         public string button2Label = "";
         public string button2URL = "";
         public float updateInterval = 2f;
+        public bool debugLogging = false;
     }
 
     public static void ApplySettings()
     {
         LoadConfig();
+        if (client != null)
+            client.Logger.Level = Config.debugLogging ? LogLevel.Trace : LogLevel.Warning;
         if (isInitialized)
         {
             if (!Config.enabled)
@@ -89,7 +92,8 @@ public static class UERP
             button2Enabled = EditorPrefs.GetBool("UERP_Button2_Enabled", false),
             button2Label = EditorPrefs.GetString("UERP_Button2_Label", ""),
             button2URL = EditorPrefs.GetString("UERP_Button2_URL", ""),
-            updateInterval = EditorPrefs.GetFloat("UERP_UpdateInterval", 2f)
+            updateInterval = EditorPrefs.GetFloat("UERP_UpdateInterval", 2f),
+            debugLogging = EditorPrefs.GetBool("UERP_DebugLogging", false)
         };
     }
 
@@ -119,7 +123,7 @@ public static class UERP
         try
         {
             client = new DiscordRpcClient(applicationId, autoEvents: false);
-            client.Logger = new UnityLogger();
+            client.Logger = new UnityLogger { Level = Config.debugLogging ? LogLevel.Trace : LogLevel.Warning };
             client.OnReady += (sender, message) =>
             {
                 isDiscordReady = true;

@@ -112,6 +112,11 @@ Add up to 2 buttons to your Discord status:
 - Sandboxed installations still need permission to access the Discord IPC socket. The package does not change sandbox permissions.
 - The connection indicator turns green after Discord completes the RPC handshake.
 
+### Discord IPC is unavailable
+- Open the Discord desktop app; the browser version does not provide a local IPC connection.
+- Open `Window → Discord RPC Settings`, enable **Debug Logging**, and click **Apply Settings**. The next connection attempt logs the attempted pipe/socket paths and their failure reasons.
+- On Linux, check that Unity can access Discord's socket; on Windows, run both applications as the same user.
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for full release history.

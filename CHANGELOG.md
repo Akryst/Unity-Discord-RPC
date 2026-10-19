@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+- Apply the Debug Logging setting to connection diagnostics, report unavailable Discord IPC once per outage as a warning, and use the reported reconnect delay.
 - Use Unix domain sockets for Linux Discord IPC, search `/tmp` as a fallback, and handle fragmented or combined IPC frames.
 - Start the RPC client without relying on Discord process names, allowing connection when Discord starts after Unity; show connection status after the RPC handshake.
 - Declare the Newtonsoft Json package dependency so clean Unity projects can compile the Discord RPC sources.

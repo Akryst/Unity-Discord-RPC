@@ -288,6 +288,7 @@ namespace DiscordRPC.RPC
 
 			//Forever trying to connect unless the abort signal is sent
 			//Keep Alive Loop
+			bool connectionFailureReported = false;
 			while (!aborting && !shutdown)
 			{
 				try
@@ -305,6 +306,7 @@ namespace DiscordRPC.RPC
 					Logger.Trace("Connecting to the pipe through the {0}", namedPipe.GetType().FullName);
 					if (namedPipe.Connect(targetPipe))
 					{
+						connectionFailureReported = false;
 						#region Connected
 						//We connected to a pipe! Reset the delay
 						Logger.Trace("Connected to the pipe. Attempting to establish handshake...");
@@ -420,7 +422,11 @@ namespace DiscordRPC.RPC
 					}
 					else
 					{
-						Logger.Error("Failed to connect for some reason.");
+						if (!connectionFailureReported)
+						{
+							Logger.Warning("Discord IPC is unavailable. Open the Discord desktop app and ensure its IPC pipe/socket is accessible. Retrying automatically.");
+							connectionFailureReported = true;
+						}
 						EnqueueMessage(new ConnectionFailedMessage() { FailedPipe = targetPipe });
 					}
 
@@ -432,7 +438,7 @@ namespace DiscordRPC.RPC
 						long sleep = delay.NextDelay();
 
 						Logger.Trace("Waiting {0}ms before attempting to connect again", sleep);
-						Thread.Sleep(delay.NextDelay());
+						Thread.Sleep((int)sleep);
 					}
 				}
 				//catch(InvalidPipeException e)
