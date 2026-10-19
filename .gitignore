@@ -1,1 +1,3 @@
 # Unity .meta files must be committed with package assets.
+Tests~/bin/
+Tests~/obj/

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using DiscordRPC;
 using DiscordRPC.Logging;
 using Debug = UnityEngine.Debug;
-using System.Diagnostics;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 #if VRC_SDK_VRCSDK3
@@ -22,6 +21,7 @@ public static class UERP
     private static long startTimestamp;
     private static bool playMode = false;
     private static bool isInitialized = false;
+    private static bool isDiscordReady = false;
     private static bool isCleaningUp = false;
     private static float nextUpdateTime = 0f;
     private static string lastSceneName = "";
@@ -32,7 +32,7 @@ public static class UERP
 
     public static UERPConfig Config { get; private set; }
 
-    public static bool IsConnected => isInitialized && client != null && client.IsInitialized;
+    public static bool IsConnected => isDiscordReady;
 
     public class UERPConfig
     {
@@ -100,12 +100,6 @@ public static class UERP
             startCts = new System.Threading.CancellationTokenSource();
             await Task.Delay(delay, startCts.Token);
 
-            if (!DiscordRunning())
-            {
-                Debug.LogWarning("[UERP] Discord not running. Rich Presence disabled.");
-                return;
-            }
-
             Init();
         }
         catch (System.Threading.Tasks.TaskCanceledException)
@@ -126,6 +120,13 @@ public static class UERP
         {
             client = new DiscordRpcClient(applicationId, autoEvents: false);
             client.Logger = new UnityLogger();
+            client.OnReady += (sender, message) =>
+            {
+                isDiscordReady = true;
+                Debug.Log("[UERP] Connected to Discord");
+            };
+            client.OnClose += (sender, message) => isDiscordReady = false;
+            client.OnConnectionFailed += (sender, message) => isDiscordReady = false;
             client.Initialize();
 
             long elapsed = (long)Math.Max(0, EditorAnalyticsSessionInfo.elapsedTime);
@@ -343,6 +344,7 @@ public static class UERP
             client?.Dispose();
             client = null;
             isInitialized = false;
+            isDiscordReady = false;
 
             Debug.Log("[UERP] Cleaned up");
         }
@@ -354,24 +356,6 @@ public static class UERP
         {
             isCleaningUp = false;
         }
-    }
-
-    private static bool DiscordRunning()
-    {
-        string[] processNames = { "Discord", "DiscordPTB", "DiscordCanary", "discord" };
-        foreach (string name in processNames)
-        {
-            Process[] procs = Process.GetProcessesByName(name);
-            try
-            {
-                if (procs.Length > 0) return true;
-            }
-            finally
-            {
-                foreach (Process p in procs) p?.Dispose();
-            }
-        }
-        return false;
     }
 
     private class UnityLogger : DiscordRPC.Logging.ILogger

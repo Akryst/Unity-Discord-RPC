@@ -57,7 +57,7 @@
 ## Quick Start
 
 1. **Install the package** using one of the methods above
-2. **Open Discord** (must be running before Unity)
+2. **Open Discord** (you can also start it after Unity)
 3. **Open Unity** - Rich Presence activates automatically
 4. That's it! Check your Discord profile
 
@@ -100,14 +100,17 @@ Add up to 2 buttons to your Discord status:
 ## Troubleshooting
 
 ### Status not appearing?
-1. Make sure Discord is running **before** opening Unity
+1. Make sure the Discord desktop app is running
 2. Check Discord settings: `User Settings → Activity Privacy → Display current activity` ✓
 3. Wait 2-5 seconds for initial connection
 4. Check Unity Console for errors
 
-### "Discord not running" warning?
-- Start Discord, then restart Unity
-- The plugin only initializes if Discord is already running
+### Discord on Linux
+- IPC uses Unix domain sockets, including native Discord and the existing Flatpak/Snap socket locations.
+- Unity and Discord must run as the same user, with access to the same runtime directory.
+- The client checks `XDG_RUNTIME_DIR`, `TMPDIR`, `TMP`, `TEMP`, and `/tmp`, and retries when Discord is unavailable.
+- Sandboxed installations still need permission to access the Discord IPC socket. The package does not change sandbox permissions.
+- The connection indicator turns green after Discord completes the RPC handshake.
 
 ## Changelog
 

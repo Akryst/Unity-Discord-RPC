@@ -32,14 +32,16 @@ namespace DiscordRPC.IO
 		/// </remarks>	
 		public static IEnumerable<string> GetPipes(int startPipe = 0)
 		{
-			bool isUnix = IsOSUnix();
+			if (startPipe < 0 || startPipe >= MaximumPipeVariations)
+				throw new ArgumentOutOfRangeException(nameof(startPipe));
+
 			if (IsOSUnix())
 			{
-				return Enumerable.Range(startPipe, MaximumPipeVariations).SelectMany(GetUnixPipes);
+				return Enumerable.Range(startPipe, MaximumPipeVariations - startPipe).SelectMany(GetUnixPipes).Distinct();
 			}
 			else
 			{
-				return Enumerable.Range(startPipe, MaximumPipeVariations).SelectMany(GetWindowsPipes);
+				return Enumerable.Range(startPipe, MaximumPipeVariations - startPipe).SelectMany(GetWindowsPipes);
 			}
 		}
 
@@ -66,22 +68,22 @@ namespace DiscordRPC.IO
 		{
 			string temp;
 			temp = Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR");
-			if (temp != null)
+			if (!string.IsNullOrEmpty(temp))
 				yield return temp;
 
 			temp = Environment.GetEnvironmentVariable("TMPDIR");
-			if (temp != null)
+			if (!string.IsNullOrEmpty(temp))
 				yield return temp;
 
 			temp = Environment.GetEnvironmentVariable("TMP");
-			if (temp != null)
+			if (!string.IsNullOrEmpty(temp))
 				yield return temp;
 
 			temp = Environment.GetEnvironmentVariable("TEMP");
-			if (temp != null)
+			if (!string.IsNullOrEmpty(temp))
 				yield return temp;
 
-			yield return "/temp";
+			yield return "/tmp";
 		}
 
 		private static bool IsOSUnix()
@@ -89,10 +91,8 @@ namespace DiscordRPC.IO
 			if (Environment.OSVersion.Platform == PlatformID.Unix)
 				return true;
 
-#if NETFRAMEWORK // MacOS was replaced with Unix in .NET Core
 			if (Environment.OSVersion.Platform == PlatformID.MacOSX)
 				return true;
-#endif
 
 			return false;
 		}
