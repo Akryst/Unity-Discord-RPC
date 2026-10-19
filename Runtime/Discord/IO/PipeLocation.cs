@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace DiscordRPC.IO
 {
@@ -71,6 +73,10 @@ namespace DiscordRPC.IO
 			if (!string.IsNullOrEmpty(temp))
 				yield return temp;
 
+			// Desktop launchers may omit XDG_RUNTIME_DIR from Unity's environment.
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+				yield return Path.Combine("/run/user", GetEffectiveUserId().ToString(CultureInfo.InvariantCulture));
+
 			temp = Environment.GetEnvironmentVariable("TMPDIR");
 			if (!string.IsNullOrEmpty(temp))
 				yield return temp;
@@ -85,6 +91,9 @@ namespace DiscordRPC.IO
 
 			yield return "/tmp";
 		}
+
+		[DllImport("libc", EntryPoint = "geteuid")]
+		private static extern uint GetEffectiveUserId();
 
 		private static bool IsOSUnix()
 		{

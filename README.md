@@ -108,7 +108,7 @@ Add up to 2 buttons to your Discord status:
 ### Discord on Linux
 - IPC uses Unix domain sockets, including native Discord and the existing Flatpak/Snap socket locations.
 - Unity and Discord must run as the same user, with access to the same runtime directory.
-- The client checks `XDG_RUNTIME_DIR`, `TMPDIR`, `TMP`, `TEMP`, and `/tmp`, and retries when Discord is unavailable.
+- The client checks `XDG_RUNTIME_DIR`, `/run/user/<effective-uid>` on Linux, `TMPDIR`, `TMP`, `TEMP`, and `/tmp`, and retries when Discord is unavailable. This also covers desktop launchers that omit `XDG_RUNTIME_DIR`.
 - Sandboxed installations still need permission to access the Discord IPC socket. The package does not change sandbox permissions.
 - The connection indicator turns green after Discord completes the RPC handshake.
 
