@@ -24,12 +24,17 @@ jobs:
         run: |
           zip -r "com.akryst.unity-discord-rpc-${{ steps.version.outputs.version }}.zip" \
             Editor/ \
+            Editor.meta \
             Runtime/ \
+            Runtime.meta \
             package.json \
+            package.json.meta \
             README.md \
+            README.md.meta \
             LICENSE.md \
+            LICENSE.md.meta \
             CHANGELOG.md \
-            -x "*.meta"
+            CHANGELOG.md.meta
             
       - name: Make Release
         uses: softprops/action-gh-release@v1

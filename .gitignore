@@ -1,2 +1,1 @@
-*.cs.meta
-*.md.meta
+# Unity .meta files must be committed with package assets.
