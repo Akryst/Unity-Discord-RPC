@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+- Declare the Newtonsoft Json package dependency so clean Unity projects can compile the Discord RPC sources.
 - Include Unity asset metadata in the repository and release ZIP so installed packages are imported instead of ignored in immutable package folders.
 
 ## [2.0.0] - 2026-08-29

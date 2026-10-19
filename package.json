@@ -17,7 +17,9 @@
     "url": "https://akryst.moe"
   },
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.0.2"
+  },
   "vpmDependencies": {},
   "url": "https://github.com/Akryst/Unity-Discord-RPC",
   "changelogUrl": "https://github.com/Akryst/Unity-Discord-RPC/blob/main/CHANGELOG.md"
